@@ -197,4 +197,8 @@ Following permissions should be created under created API settings.
    - Responds with a 404 error if <id> is not found
    - Update the corresponding fields for Movie with id <id> and return new movie
 	
- 
+ ## Testing
+To run the tests, run
+```
+python test_app.py
+```

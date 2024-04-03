@@ -2,9 +2,7 @@ import os
 from dotenv import load_dotenv,find_dotenv
 
 env_file = find_dotenv(f'.env.{os.getenv("ENV", "development")}')
-if env_file == None:
-    env_file= '.env'
-load_dotenv() 
+load_dotenv(env_file) 
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
