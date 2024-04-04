@@ -7,12 +7,12 @@ data:
   mapRoles: |
     - groups:
       - system:masters
-      rolearn: arn:aws:iam::644752792305:role/FlaskDeployCBKubectlRole
+      rolearn: arn:aws:iam::595455728308:role/FlaskDeployCBKubectlRole
       username: build      
     - groups:
       - system:bootstrappers
       - system:nodes
-      rolearn: arn:aws:iam::644752792305:role/eksctl-simple-jwt-api-nodegroup-n-NodeInstanceRole-17C402QC9VF6L
+      rolearn: arn:aws:iam::595455728308:role/eksctl-simple-jwt-api-nodegroup-n-NodeInstanceRole-17C402QC9VF6L
       username: system:node:{{EC2PrivateDNSName}}
   mapUsers: |
     []
