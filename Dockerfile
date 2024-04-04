@@ -22,6 +22,6 @@ RUN apt-get install -y gcc
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 ENV PATH=/root/.local:$PATH
-EXPOSE 80
-EXPOSE 5000
-CMD ["flask", "run"]
+
+ENTRYPOINT ["python", "app.py"]
+
