@@ -55,6 +55,10 @@ Create two roles for users under `Users & Roles` section in Auth0
 
 ### Login App
 http://127.0.0.1:5000/login
+
+http://a663da6d9ddfd4667885f6cbef6c1417-461432304.us-east-2.elb.amazonaws.com/login
+
+
 ### User Test
 
 #### Manage role 
@@ -63,7 +67,12 @@ tannv20@udacity.com/Udacity@1235
 view_user@udacity.com/Udacity@1235
 
 #### SwaggerUI
+##### get token from `http://a663da6d9ddfd4667885f6cbef6c1417-461432304.us-east-2.elb.amazonaws.com/login`
+after login
+
 http://127.0.0.1:5000/apidocs
+http://a663da6d9ddfd4667885f6cbef6c1417-461432304.us-east-2.elb.amazonaws.com/apidocs/
+
 
 ##### Permissions
 

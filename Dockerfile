@@ -24,4 +24,3 @@ RUN pip install -r requirements.txt
 ENV PATH=/root/.local:$PATH
 
 ENTRYPOINT ["python", "app.py"]
-

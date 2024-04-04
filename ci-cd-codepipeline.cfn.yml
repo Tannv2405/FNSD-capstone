@@ -55,7 +55,7 @@ Parameters:
 
   KubectlRoleName:
     Type: String
-    Default: FlaskDeployCBKubectlRole
+    Default: UdacityFlaskDeployCBKubectlRole
     Description: IAM role used by kubectl to interact with EKS cluster
     MinLength: 3
     MaxLength: 100
@@ -118,7 +118,10 @@ Resources:
           import json
           import boto3
           from botocore.vendored import requests
+          import urllib3
+
           def handler(event, context):
+            print(event)
             response = {
               'Status': 'SUCCESS',
               "Reason": "See the details in CloudWatch Log Stream: " + context.log_stream_name,
@@ -130,6 +133,7 @@ Resources:
             }
 
             client = boto3.client('iam')
+            http = urllib3.PoolManager()
             try:
               if event['RequestType'] == 'Create':
                 kubectl_role_name = event['ResourceProperties']['KubectlRoleName']
@@ -154,12 +158,16 @@ Resources:
 
             response_body = json.dumps(response)
             headers = {'content-type': '', "content-length": str(len(response_body)) }
-            put_response = requests.put(event['ResponseURL'], headers=headers, data=response_body)
+            put_response = http.request('POST',
+                        event['ResponseURL'],
+                        body = response_body,
+                        headers=headers,
+                        retries = False)
             return response
 
       Handler: index.handler
       Role: !GetAtt CustomResourceLambdaExecutionRole.Arn
-      Runtime: python2.7
+      Runtime: python3.9
       Timeout: 300
 
   CustomResourceLambdaExecutionRole:
@@ -188,15 +196,15 @@ Resources:
                   - iam:GetRole
                   - iam:UpdateAssumeRolePolicy
 
-  KubectlAssumeRoleCustomResource:
-    Type: Custom::CustomResource
-    Properties:
-      ServiceToken: !GetAtt CustomResourceLambda.Arn
-      KubectlRoleName: !Ref KubectlRoleName
-      CodeBuildServiceRoleArn: !GetAtt CodeBuildServiceRole.Arn
-    DependsOn:
-      - CustomResourceLambda
-      - CodeBuildServiceRole
+  # KubectlAssumeRoleCustomResource:
+  #   Type: Custom::CustomResource
+  #   Properties:
+  #     ServiceToken: !GetAtt CustomResourceLambda.Arn
+  #     KubectlRoleName: !Ref KubectlRoleName
+  #     CodeBuildServiceRoleArn: !GetAtt CodeBuildServiceRole.Arn
+  #   DependsOn:
+  #     - CustomResourceLambda
+  #     - CodeBuildServiceRole
 
   CodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -325,7 +333,7 @@ Resources:
         PrivilegedMode: true
       Name: !Ref AWS::StackName
       ServiceRole: !GetAtt CodeBuildServiceRole.Arn
-    DependsOn: KubectlAssumeRoleCustomResource
+    # DependsOn: KubectlAssumeRoleCustomResource
 
   CodePipelineGitHub:
     Type: AWS::CodePipeline::Pipeline
