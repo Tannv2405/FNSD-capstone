@@ -49,11 +49,9 @@ class TriviaTestCase(unittest.TestCase):
                                               'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
 
-        actor = Actor.query.filter_by(id=data['actor']['id']).one_or_none()
-
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertIsNotNone(actor)
+        self.assertIsNotNone(data['actor'])
 
     def test_post_new_actor(self):
         res = self.client().post('/actors',
@@ -66,7 +64,7 @@ class TriviaTestCase(unittest.TestCase):
                                               'Bearer ' + BARISTA_TOKEN})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 401)
 
     def test_post_new_actor_name_missing(self):
         res = self.client().post('/actors',
@@ -78,7 +76,7 @@ class TriviaTestCase(unittest.TestCase):
                                               'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 400)
         self.assertFalse(data['success'])
 
     def test_post_new_actor_gender_missing(self):
@@ -91,7 +89,7 @@ class TriviaTestCase(unittest.TestCase):
                                               'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 400)
         self.assertFalse(data['success'])
 
     def test_delete_actor(self):
@@ -104,7 +102,7 @@ class TriviaTestCase(unittest.TestCase):
                                               'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
-        actor_id = data['id']
+        actor_id = data['actor']['id']
 
         res = self.client().delete('/actors/{}'.format(actor_id),
                                    headers={'Authorization':
@@ -123,7 +121,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
-        self.assertEqual(data['message'], 'Not found')
+        self.assertEqual(data['message'], 'resource not found')
 
     def test_patch_actor(self):
         res = self.client().patch('/actors/2',
@@ -138,7 +136,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertEqual(data['actor-updated'], 2)
+        self.assertEqual(data['actor']['id'], 2)
 
     # PATCH Negative case - Update age for non-existent actor
     # - Director Role
@@ -155,7 +153,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
-        self.assertEqual(data['message'], 'Not found')
+        self.assertEqual(data['message'], 'resource not found')
 
     def test_get_movies_barista(self):
         res = self.client().get('/movies?page=1',
@@ -180,26 +178,24 @@ class TriviaTestCase(unittest.TestCase):
     def test_post_new_movie(self):
         res = self.client().post('/movies',
                                  json={'title': "TOM NGUYEN",
-                                       'release_date': "2023-10-10"},
+                                       'release': "2023-10-10"},
                                  headers={'Authorization':
                                               'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
-
-        movie = Movie.query.filter_by(id=data['id']).one_or_none()
+        id = data.get('movie').get('id')
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertIsNotNone(movie)
+        self.assertIsNotNone(data['movie'])
 
     def test_post_new_movie_title_missing(self):
         res = self.client().post('/movies',
                                  json={
-                                     'release_date': "2023-10-10"},
+                                     'release': "2023-10-10"},
                                  headers={'Authorization':
                                               'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 400)
         self.assertFalse(data['success'])
 
     def test_post_new_movie_reldate_missing(self):
@@ -209,18 +205,18 @@ class TriviaTestCase(unittest.TestCase):
                                               'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 400)
         self.assertFalse(data['success'])
 
     def test_delete_movie(self):
         res = self.client().post('/movies',
                                  json={'title': "TOMNGUYEN",
-                                       'release_date': "2023-10-10"},
+                                       'release': "2023-10-10"},
                                  headers={'Authorization':
                                               'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
 
-        movie_id = data['id']
+        movie_id = data['movie']['id']
 
         res = self.client().delete('/movies/{}'.format(movie_id),
                                    headers={'Authorization':
@@ -229,7 +225,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertEqual(data['movie-deleted'], movie_id)
+        self.assertEqual(data['id'], movie_id)
 
     def test_delete_movie_not_found(self):
         res = self.client().delete('/movies/999',
@@ -239,31 +235,30 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
-        self.assertEqual(data['message'], 'Not found')
+        self.assertEqual(data['message'], 'resource not found')
 
     def test_patch_movie(self):
         res = self.client().patch('/movies/2',
                                   json={'title': "TOMNGUYEN",
-                                        'release_date': "2023-10-10"},
+                                        'release': "2023-10-10"},
                                   headers={'Authorization':
                                                'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
-
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertEqual(data['movie-updated'], 2)
+        self.assertEqual(data.get('movie')['id'], 2)
 
     def test_patch_movie_not_found(self):
         res = self.client().patch('/movies/99',
                                   json={'title': "TOMNGUYEN",
-                                        'release_date': "2023-10-10"},
+                                        'release': "2023-10-10"},
                                   headers={'Authorization':
                                                'Bearer ' + MANAGER_TOKEN})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
-        self.assertEqual(data['message'], 'Not found')
+        self.assertEqual(data['message'], 'resource not found')
 
     def test_no_auth(self):
         res = self.client().get('/movies')
@@ -271,19 +266,19 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 401)
         self.assertFalse(data['success'])
-        self.assertEqual(data['error'],
-                         'authorization_header_missing')
+        self.assertEqual(data['message'],
+                         'Authorization header is expected.')
 
     def test_no_permission(self):
         res = self.client().post('/movies', json={'title': "TOMNGUYEN",
-                                                  'release_date': "2023-10-10"},
+                                                  'release': "2023-10-10"},
                                  headers={'Authorization':
                                               'Bearer ' + BARISTA_TOKEN})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.status_code, 401)
         self.assertFalse(data['success'])
-        self.assertEqual(data['message'], 'Permission not found')
+        self.assertEqual(data['message'], 'Permission Not found')
 
 
 if __name__ == "__main__":

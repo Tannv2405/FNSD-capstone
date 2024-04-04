@@ -78,9 +78,7 @@ def create_app(test_config=None):
     @app.route("/callback", methods=["GET", "POST"])
     def callback():
         try:
-            print('check')
             token = oauth.auth0.authorize_access_token()
-            print('token',token)
             session["user"] = token
             return redirect("/home")
             
@@ -91,7 +89,6 @@ def create_app(test_config=None):
 
     @app.route("/home")
     def home():
-        print(session.get('user'))
         return render_template("home.html", pretty=json.dumps(session.get('user'), indent=4))
     
     @app.route("/login")
@@ -103,7 +100,6 @@ def create_app(test_config=None):
     
     @app.route("/logout")
     def logout():
-        print(session.get('user'))
         token = session.get('user')['access_token']
         session.clear()
         return redirect("/home")
@@ -240,10 +236,9 @@ def create_app(test_config=None):
                                     default: Male
         """
         data = request.get_json()
-        print(data)
-        if data['name'] is None or data['age'] is None or data['gender'] is None:
+        if data.get('name') is None or data.get('age') is None or data.get('gender') is None:
             abort(400)
-        actor = Actor(name=data['name'] , age=data['age'], gender=data['gender'])
+        actor = Actor(name=data.get('name') , age=data.get('age'), gender=data.get('gender'))
         actor.insert()
         return jsonify({
             'success': True,
@@ -314,12 +309,14 @@ def create_app(test_config=None):
                                     default: Male
         """
         data = request.get_json()
-        if data['name'] is None or data['age'] is None or data['gender'] is None:
+        if data.get('name') is None or data.get('age') is None or data.get('gender') is None:
             abort(400)
         actor = Actor.query.get(id)
-        actor.name = data['name']
-        actor.age = data['age']
-        actor.gender = data['gender'] 
+        if actor == None:
+            abort(404)
+        actor.name = data.get('name')
+        actor.age = data.get('age')
+        actor.gender = data.get('gender') 
         actor.update()
         return jsonify({
             'success': True,
@@ -508,9 +505,9 @@ def create_app(test_config=None):
                                     default: 30
         """
         data = request.get_json()
-        if data['title'] is None or data['release'] is None:
+        if data.get('title') is None or data.get('release') is None:
             abort(400)
-        movie = Movie(title=data['title'], release=data['release'])
+        movie = Movie(title=data.get('title'), release=data.get('release'))
         movie.insert()
         return jsonify({
             'success': True,
@@ -576,11 +573,13 @@ def create_app(test_config=None):
                                     default: 30
         """
         data = request.get_json()
-        if data['title'] is None or data['release'] is None:
+        if data.get('title') is None or data.get('release') is None:
             abort(400)
         movie = Movie.query.get(id)
-        movie.title = data['title']
-        movie.release = data['release']
+        if movie == None:
+            abort(404)
+        movie.title = data.get('title')
+        movie.release = data.get('release')
         movie.update()
         return jsonify({
             'success': True,

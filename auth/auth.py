@@ -75,7 +75,6 @@ def get_token_auth_header():
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
         abort(400)
-    print("permission: ",permission)
     if permission not in payload['permissions']:
         raise AuthError({
             'code': 'unauthorized',
@@ -103,8 +102,6 @@ def verify_decode_jwt(token):
     jwks = json.loads(jsonurl.read())
     # Get the data in the header
     unverified_header = jwt.get_unverified_header(token) 
-    print('unverified_header',unverified_header)
-    #print(jwks)
     #Auth0 token should have a key id
     if 'kid' not in unverified_header:
         raise AuthError({
@@ -113,7 +110,6 @@ def verify_decode_jwt(token):
         }, 401)
 
     rsa_key = {}
-    print('check1')
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
@@ -127,7 +123,6 @@ def verify_decode_jwt(token):
     # verify the token
     if rsa_key:
         try:
-            print('rsa_key',rsa_key)
             # Validate the token using the rsa_key
             payload = jwt.decode(
                 token,
@@ -136,7 +131,6 @@ def verify_decode_jwt(token):
                 audience=API_AUDIENCE,
                 issuer=f'https://{AUTH0_DOMAIN}/'
             )
-            print('payload',payload)
            
             return payload
         except jwt.ExpiredSignatureError:
