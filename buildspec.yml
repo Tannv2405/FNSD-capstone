@@ -19,6 +19,7 @@ phases:
       - echo `kubectl version`
       - export PATH=$PWD/:$PATH
       - python -m pip install --upgrade --force pip
+      - wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
       - apt-get update && apt-get -y install jq  && pip install --upgrade awscli
   pre_build:
       commands:
