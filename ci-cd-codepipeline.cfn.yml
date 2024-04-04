@@ -8,7 +8,7 @@ Parameters:
   EksClusterName:
     Type: String
     Description: The name of the EKS cluster created
-    Default: simple-jwt-api
+    Default: capstone-jwt-api
     MinLength: 1
     MaxLength: 100
     ConstraintDescription: You must enter the EKS cluster name
@@ -16,7 +16,7 @@ Parameters:
   GitSourceRepo:
     Type: String
     Description: GitHub source repository - must contain a Dockerfile and buildspec.yml in the base
-    Default: Deploying-a-Flask-App-to-Kubernetes-with-a-CI-CD-pipeline
+    Default: FNSD-capstone
     MinLength: 1
     MaxLength: 100
     ConstraintDescription: You must enter a GitHub repository name
@@ -39,7 +39,7 @@ Parameters:
 
   GitHubUser:
     Type: String
-    Default: iDataist
+    Default: Tannv2405
     Description: GitHub username or organization
     MinLength: 3
     MaxLength: 100
