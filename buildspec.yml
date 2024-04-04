@@ -36,10 +36,13 @@ phases:
   post_build:
     commands:
       - docker push $REPOSITORY_URI:$TAG
+      - echo $EKS_CLUSTER_NAME
+      - echo $EKS_KUBECTL_ROLE_ARN
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --role-arn $EKS_KUBECTL_ROLE_ARN
       - kubectl get -n kube-system configmap/aws-auth -o yaml > /tmp/aws-auth-patch.yml
       - kubectl patch configmap/aws-auth -n kube-system --patch "$(cat /tmp/aws-auth-patch.yml)"
-      - kubectl apply -f capstone_jwt_api.yml 
+      - kubectl apply -f simple_jwt_api.yml 
+     # - kubectl get services eksctl-simple-jwt-api -o wide 
       - printf '[{"name":"simple_jwt_api","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
 artifacts:
   files: build.json
