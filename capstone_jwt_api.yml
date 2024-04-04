@@ -30,7 +30,7 @@ spec:
         app: capstone-jwt-api
     spec:
       containers:
-        - name: simple-jwt-api
+        - name: capstone-jwt-api
           image: CONTAINER_IMAGE
           securityContext:
             privileged: false
