@@ -12,7 +12,6 @@ RUN pip install -r requirements.txt
 
 
 FROM python:3.12.2-slim as app
-COPY --from=builder /root/.local /root/.local
 COPY --from=builder /usr/app .
 
 ENV PATH=/root/.local:$PATH
